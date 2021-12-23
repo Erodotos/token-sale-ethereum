@@ -2,14 +2,15 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract Token {
-    address private owner;
-    uint256 private contractBalance = 0;
-    uint256 private circulatingTokens = 0;
+    address public owner;
+    uint256 public contractBalance = 0;
+    uint256 public circulatingTokens = 0;
 
-    mapping(address => uint256) private balances;
-    mapping(address => uint256) private liquidityProviders;
-    uint256 private totalLiquidity = 0;
-    uint256 private rewardsPool = 0;
+    mapping(address => uint256) public balances;
+    mapping(address => uint256) public liquidityProviders;
+    uint256 numberOfProviders = 0;
+    uint256 public totalLiquidity = 0;
+    uint256 public rewardsPool = 0;
 
     uint256 public tokenPrice = 10;
 
@@ -24,8 +25,8 @@ contract Token {
 
     constructor() payable {
         require(
-            msg.value == 1 ether,
-            "As the contract owner you are required to provide 1 ETH liquidity"
+            msg.value == 100,
+            "As the contract owner you are required to provide 100 wei liquidity"
         );
         owner = msg.sender;
         provideLiquidity(owner, msg.value);
@@ -53,6 +54,7 @@ contract Token {
 
     function sellToken(uint256 amount) public returns (bool) {
         require(amount >= 1, "Provide positive amount of tokens!");
+        require(amount <= balances[msg.sender], "Not enough balance!s");
         circulatingTokens -= amount;
         balances[msg.sender] -= amount;
         contractBalance -= amount * tokenPrice;
@@ -84,24 +86,31 @@ contract Token {
         liquidityProviders[provider] += amount;
         totalLiquidity += amount;
         contractBalance += amount;
+        numberOfProviders += 1;
     }
 
     function getReward() internal {
         require(
-            liquidityProviders[msg.sender] > 0,
+            liquidityProviders[msg.sender] == 100,
             "You are not a liquidity provider"
         );
 
-        uint256 allowance = liquidityProviders[msg.sender] / totalLiquidity;
-        balances[msg.sender] += rewardsPool * allowance;
+        require(
+            rewardsPool % numberOfProviders == 0,
+            "You can not receive rewards now (unfair division)"
+        );
+
+        uint256 allowance = (liquidityProviders[msg.sender] / totalLiquidity) *
+            100;
+        balances[msg.sender] += (rewardsPool * allowance) / 100;
         rewardsPool -= rewardsPool * allowance;
     }
 
-    receive() external payable {
-        provideLiquidity(msg.sender, msg.value);
-    }
-
-    fallback() external {
-        getReward();
+    fallback() external payable {
+        if (msg.value > 0) {
+            provideLiquidity(msg.sender, msg.value);
+        } else {
+            getReward();
+        }
     }
 }

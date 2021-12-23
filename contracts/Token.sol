@@ -37,6 +37,10 @@ contract Token {
             msg.value == amount * tokenPrice,
             "Your funds are not sufficient"
         );
+        require(
+            amount % 10 == 0,
+            "The purchased quantity should be multiple of 10!"
+        );
         circulatingTokens += amount;
         balances[msg.sender] += (amount * 90) / 100;
         rewardsPool += (amount * 10) / 100;

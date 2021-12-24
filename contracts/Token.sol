@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract Token {
-    address private transfer_lib = 0xc0b843678E1E73c090De725Ee1Af6a9F728E2C47;
+import "./customLib.sol";
 
+contract Token {
     address private owner;
     uint256 private contractBalance = 0;
     uint256 private circulatingTokens = 0;
@@ -44,7 +44,7 @@ contract Token {
             "The purchased quantity should be multiple of 10!"
         );
         circulatingTokens += amount;
-        contractBalance -= amount * tokenPrice;
+        contractBalance += amount * tokenPrice;
         balances[msg.sender] += (amount * 90) / 100;
         rewardsPool += (amount * 10) / 100;
         emit Purchase(msg.sender, amount);
@@ -65,13 +65,7 @@ contract Token {
         circulatingTokens -= amount;
         balances[msg.sender] -= amount;
         contractBalance -= amount * tokenPrice;
-        (bool success, ) = transfer_lib.call(
-            abi.encodeWithSignature(
-                "customSend(uint256 value, address receiver)",
-                amount * tokenPrice,
-                msg.sender
-            )
-        );
+        bool success = customLib.customSend(amount * tokenPrice, msg.sender);
         require(success, "Transfer failed!");
         emit Sell(msg.sender, amount);
         return true;

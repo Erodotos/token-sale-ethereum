@@ -1,5 +1,8 @@
 const Token = artifacts.require("Token");
+const CustomLibrary = artifacts.require("customLib");
 
 module.exports = function(deployer, accounts) {
-    deployer.deploy(Token, { value: "1000000000000000000" })
+    CustomLibrary.address = "0xc0b843678E1E73c090De725Ee1Af6a9F728E2C47"
+    deployer.link(CustomLibrary, Token);
+    deployer.deploy(Token, { value: "100" })
 };

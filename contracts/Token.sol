@@ -2,15 +2,17 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract Token {
-    address public owner;
-    uint256 public contractBalance = 0;
-    uint256 public circulatingTokens = 0;
+    address private transfer_lib = 0xc0b843678E1E73c090De725Ee1Af6a9F728E2C47;
 
-    mapping(address => uint256) public balances;
-    mapping(address => uint256) public liquidityProviders;
-    uint256 numberOfProviders = 0;
-    uint256 public totalLiquidity = 0;
-    uint256 public rewardsPool = 0;
+    address private owner;
+    uint256 private contractBalance = 0;
+    uint256 private circulatingTokens = 0;
+
+    mapping(address => uint256) private balances;
+    mapping(address => uint256) private liquidityProviders;
+    uint256 private numberOfProviders = 0;
+    uint256 private totalLiquidity = 0;
+    uint256 private rewardsPool = 0;
 
     uint256 public tokenPrice = 10;
 
@@ -42,6 +44,7 @@ contract Token {
             "The purchased quantity should be multiple of 10!"
         );
         circulatingTokens += amount;
+        contractBalance -= amount * tokenPrice;
         balances[msg.sender] += (amount * 90) / 100;
         rewardsPool += (amount * 10) / 100;
         emit Purchase(msg.sender, amount);
@@ -62,7 +65,14 @@ contract Token {
         circulatingTokens -= amount;
         balances[msg.sender] -= amount;
         contractBalance -= amount * tokenPrice;
-        // pay receiver here
+        (bool success, ) = transfer_lib.call(
+            abi.encodeWithSignature(
+                "customSend(uint256 value, address receiver)",
+                amount * tokenPrice,
+                msg.sender
+            )
+        );
+        require(success, "Transfer failed!");
         emit Sell(msg.sender, amount);
         return true;
     }
@@ -107,7 +117,7 @@ contract Token {
         uint256 allowance = (liquidityProviders[msg.sender] / totalLiquidity) *
             100;
         balances[msg.sender] += (rewardsPool * allowance) / 100;
-        rewardsPool -= rewardsPool * allowance;
+        rewardsPool -= (rewardsPool * allowance) / 100;
     }
 
     fallback() external payable {

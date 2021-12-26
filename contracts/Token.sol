@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.8.00 <0.9.0;
 
 import "./customLib.sol";
 
@@ -62,6 +62,7 @@ contract Token {
     function sellToken(uint256 amount) public returns (bool) {
         require(amount >= 1, "Provide positive amount of tokens!");
         require(amount <= balances[msg.sender], "Not enough balance!s");
+        require(amount > 0, "Not enough balance!");
         circulatingTokens -= amount;
         balances[msg.sender] -= amount;
         contractBalance -= amount * tokenPrice;
@@ -99,7 +100,7 @@ contract Token {
 
     function getReward() internal {
         require(
-            liquidityProviders[msg.sender] == 100,
+            liquidityProviders[msg.sender] >= 100,
             "You are not a liquidity provider"
         );
 

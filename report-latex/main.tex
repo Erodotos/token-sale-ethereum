@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 
 \usepackage{graphicx}
-\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[left=1.5cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
 \usepackage{listings}
 \usepackage{lstlang-go}
 \usepackage{jslistings}
@@ -75,31 +75,30 @@ receive tokens as rewards whenever a new buyer purchases the token in the
 future. Next, we provide a real-world example of using this mechanism to
 understand its functionality better. \\
 
-
 \begin{figure}[htpb]
     \begin{center}
-        \includegraphics[height=10cm]{execution_flow.png}
+        \includegraphics[height=8cm]{execution_flow.png}
         \caption{Smart Contract Execution Workflow Example}
         \label{fig:smart-contract-example}
     \end{center}
 \end{figure} 
 
-
-Figure 1 illustrates the smart contract's life cycle. In step A, the owner
-(address A) deploys the smart contract providing 100 Wei. This automatically
-registers him as the first liquidity provider. Next, in step B, we can observe a
-buyer (address B) conducting a buy request to the smart contract. For instance,
-he wants to buy 30 tokens priced at ten Wei each. Hence, he has to send 300 Wei
-to the smart contract and provide the number of tokens as an input parameter. We
-check for the validity of the input data, and if everything is accurate, we
-proceed. 10\% of the purchased tokens is contributed into a rewards pool while
-the customer receives 90\%. We have to mention that for simplicity objectives in
-calculating the percentage, we allow purchases of multiples of 10. Later, in
-step C the buyer can view its balance by calling the getBalance() method of the
-smart contract. At this point (D), a liquidity provider can receive rewards from
-the rewards pool. He will get a portion of tokens according to the fraction of
-liquidity he provided to the total liquidity. In other words, each provider can
-increase the rewards he receives by offering more liquidity. \\
+Figure \ref{fig:smart-contract-example} illustrates the smart contract's life cycle. In
+step A, the owner (address A) deploys the smart contract providing 100 Wei. This
+automatically registers him as the first liquidity provider. Next, in step B, we
+can observe a buyer (address B) conducting a buy request to the smart contract.
+For instance, he wants to buy 30 tokens priced at ten Wei each. Hence, he has to
+send 300 Wei to the smart contract and provide the number of tokens as an input
+parameter. We check for the validity of the input data, and if everything is
+accurate, we proceed. 10\% of the purchased tokens is contributed into a rewards
+pool while the customer receives 90\%. We have to mention that for simplicity
+objectives in calculating the percentage, we allow purchases of multiples of 10.
+Later, in step C the buyer can view its balance by calling the getBalance()
+method of the smart contract. At this point (D), a liquidity provider can
+receive rewards from the rewards pool. He will get a portion of tokens according
+to the fraction of liquidity he provided to the total liquidity. In other words,
+each provider can increase the rewards he receives by offering more liquidity.
+\\
 
 Nonetheless, we have to note that because solidity does not support floats, we
 restrict the amount a liquidity provider can offer to multiples of 100 Wei.
@@ -126,9 +125,10 @@ achieve through remix online editor. Thus we used Truffle smart contract
 development framework to achieve the desired outcome. Practically, we compiled
 the customLib.sol locally to generate a reference ABI and afterward import the
 library into our Token.sol contract. Since we needed to use an already deployed
-instance of the library, we specified in the migrations javascript file its
-address and used the link method to reference it. There follows the deployment
-and link script for the operation as mentioned earlier. \\
+instance of the library, we specified its address in the migrations javascript
+file and used the link method to reference it. There follows the deployment and
+link script for the operation as mentioned earlier and a detailed of smart
+contract's variables, functions and events. \\
 
 \begin{lstlisting}[language=JavaScript]
 const Token = artifacts.require("Token");
@@ -141,125 +141,123 @@ module.exports = function(deployer, accounts) {
 };
 \end{lstlisting}
 
-There follows a detailed list and description of smart contract's variables,
-functions and events. \\
-
 \textbf{\underline{Variables}} \\
 
-\emph{address owner:} This variable is set on deployment, and stores the smart
+\textbf{\emph{address owner:}} This variable is set on deployment, and stores the smart
 contract's owner address.\\
-
-\emph{uint256 contractBalance:} This variable stores the number of \emph{wei} deposited
+\textbf{\emph{uint256 contractBalance:}} This variable stores the number of \emph{wei} deposited
 into the smart contract.\\
-
-\emph{uint256 circulatingTokens:}  This variable stores the number of
+\textbf{\emph{uint256 circulatingTokens:}}  This variable stores the number of
 circulating tokens.\\
-
-\emph{mapping balances:} This is a mapping variable maintaining a one to one
+\textbf{\emph{mapping balances:}} This is a mapping variable maintaining a one to one
 correspondance between a user address and the number of tokens it holds. \\
-
-\emph{mapping liquidityProviders:} This is a mapping variable maintaining a one
+\textbf{\emph{mapping liquidityProviders:}} This is a mapping variable maintaining a one
 to one correspondance between a liquidity provider user address and the amount
 of liquidity it provided in \emph{wei}. \\
-
-\emph{uint256 numberOfProviders:} This variable holds the number of total
+\textbf{\emph{uint256 numberOfProviders:}} This variable holds the number of total
 liquidity providers.\\
-
-\emph{uint256 totalLiquidity:} This variable holds the amount of total liquidity
+\textbf{\emph{uint256 totalLiquidity:}} This variable holds the amount of total liquidity
 provided during the complete life cycle of the smart contract.\\
-
-\emph{uint256 rewardsPool:} This variable stores the amount of tokens that will
+\textbf{\emph{uint256 rewardsPool:}} This variable stores the amount of tokens that will
 be available to liquidity providers as rewards for their services.\\
-
-\emph{uint256 tokenPrice:} This variable stores the current token price in
+\textbf{\emph{uint256 tokenPrice:}} This variable stores the current token price in
 \emph{wei}.\\
 
 \textbf{\underline{Events}} \\
 
-\emph{event Purchase:} Whenever a token purchase is fulfilled, an event stating
+\textbf{\emph{event Purchase:}} Whenever a token purchase is fulfilled, an event stating
 the buyer's address and the purchased amount, is emitted.\\
-
-\emph{event Sell:} Whenever a token holder sells its tokens back to the smart
+\textbf{\emph{event Sell:}} Whenever a token holder sells its tokens back to the smart
 contract, a sell event is emitted. This event states the seller address and the
 amount of tokens sold.\\
-
-\emph{event Transfer:} Whenever a token holder transfers its tokens to an other
+\textbf{\emph{event Transfer:}} Whenever a token holder transfers its tokens to an other
 address a transfer event is emitted. This event states the sender and receiver
 adddresses, as well as the transfered amount of tokens.\\
-
-\emph{event Price:} This event is emitted whenever the smart contract owner
+\textbf{\emph{event Price:}} This event is emitted whenever the smart contract owner
 changes the token price.\\
 
 \textbf{\underline{Functions}} \\
 
-\emph{constructor():} This is the smart contract constractor. It is called
+\textbf{\emph{constructor():}} This is the smart contract constractor. It is called
 whenever the code is deployed for the first time, and sets the contract owner,
 as the initiator of the transaction. The smart contract constructor requirement
 is that the owner provides 100 \emph{wei} as initial liquidity. Thus he becomes
 the first liquidity provider.\\
-
-\emph{buyToken():} Whenever a buyer wants to exchange his ETH for our token has
+\textbf{\emph{buyToken():}} Whenever a buyer wants to exchange his ETH for our token has
 to call this function. In more detail, he needs to provide as input the number
 of tokens that he desires to purchase and send the proportional amount of ETH,
 considering the token price which is in \emph{wei}.\\
-
-\emph{transfer():} This function can be called by a token holder that desires to
+\textbf{\emph{transfer():}} This function can be called by a token holder that desires to
 transfer a specific amount of tokens to an other address.\\
-
-\emph{sellToken():} This function enables a token holder to exchange his tokens
+\textbf{\emph{sellToken():}} This function enables a token holder to exchange his tokens
 with ETH. He can provide the number of tokens he wants to exchange and
 subsequentyl he will receive the according value of ETH considering the current
 token price.\\
-
-\emph{changePrice():} This function can be called only by the smart contract
+\textbf{\emph{changePrice():}} This function can be called only by the smart contract
 owner, to change the token price. Its execution will only succed if there is
 enough liquidity to pay token holders if they decide to sell their token
 simultaneously.\\
-
-\emph{getBalance():} This function returns the balance of tokens that are in the
+\textbf{\emph{getBalance():}} This function returns the balance of tokens that are in the
 posetion of the fucntion's caller.\\
-
-\emph{provideLiquidity():} This is an internal function that can be triggered
+\textbf{\emph{provideLiquidity():}} This is an internal function that can be triggered
 through the fallback function. It receives an address and the amount of provided
 liquidity. Subsequentyl, it registers this user as a liquidity provider. \\
-
-\emph{getReward():} This is an internal function that can be trigered through
+\textbf{\emph{getReward():}} This is an internal function that can be trigered through
 the fallback function and only if the caller is a registered liquidity provider.
 Its execution results into receiving a proportion of the reward tokens from the
 reward pool.\\
-
-\emph{fallback():} This function can be used with different arguments and can
+\textbf{\emph{fallback():}} This function can be used with different arguments and can
 serve different purposes. If it is called providing some ETH, registers you as a
 liquidity provider; Else, it can be used by liquidity provider to receive its
-rewards.\\
-
-
+rewards.
 
 \subsection*{Gas Costs Evaluation}
 This section measures and evaluates the gas cost we expect to have when deploying and
 interacting with the Smart Contract. \\
 
-Gas costs appear in the following table, and they are unquestionably high.
-The Smart Contract owner has to pay 1,801,345 gas units to deploy the code, which is
-approximately \$995 (price on 26/10/21). This is definitely a high amount of gas which makes the
-Smart Contract not so gas efficient. \\
+Gas costs appear in the following table. The Smart Contract owner has to pay
+1,389,915 gas units to deploy the code. This is a high amount of gas, making the
+smart contract expensive to deploy initially. \\
 
 \begin{table}[htpb]
     \begin{center}
         \begin{tabular}{cc}
-        \multicolumn{2}{c}{\textbf{Gas Costs}}                                                                                                                   \\
-        \multicolumn{1}{l}{}                                     & \multicolumn{1}{l}{}                                            \\ \hline
-        \multicolumn{2}{|c|}{\textit{\textbf{Contract Owner Fees}}}                                                                                              \\ \hline
-        \multicolumn{1}{|c|}{Contract Deployment}                & \multicolumn{1}{c|}{1,801,345}                                                                    \\ \hline
-        \multicolumn{1}{l}{}                                     & \multicolumn{1}{l}{}                                        \\ \hline
-        \multicolumn{2}{|c|}{\textit{\textbf{Customer Fees}}} \\ \hline
-        \multicolumn{1}{|c|}{Contract Deployment}                & \multicolumn{1}{c|}{1,801,345}                                                                    \\ \hline
-        \multicolumn{1}{l}{}                                     & \multicolumn{1}{l}{}                                        \\ \hline
-        \multicolumn{2}{|c|}{\textit{\textbf{Liquidity Provider Fees}}} \\ \hline   
-        \multicolumn{1}{|c|}{Contract Deployment}                & \multicolumn{1}{c|}{1,801,345}                                                   \\ \hline
+        \multicolumn{2}{c}{\textbf{Gas Costs}}                                                                \\
+        \multicolumn{1}{l}{}                                                & \multicolumn{1}{l}{}            \\ \hline
+        \multicolumn{2}{|c|}{\textit{\textbf{Contract Owner Fees}}}                                           \\ \hline
+        \multicolumn{1}{|c|}{Contract Deployment}                           & \multicolumn{1}{c|}{1,389,915}  \\ \hline
+        \multicolumn{1}{l}{}                                                & \multicolumn{1}{l}{}            \\ \hline
+        \multicolumn{2}{|c|}{\textit{\textbf{Customer Fees}}}                                                 \\ \hline
+        \multicolumn{1}{|c|}{buyToken()}                                   & \multicolumn{1}{c|}{65,102}   \\ \hline
+        \multicolumn{1}{|c|}{sellToken()}                                  & \multicolumn{1}{c|}{62,875}   \\ \hline
+        \multicolumn{1}{|c|}{transfer()}                                   & \multicolumn{1}{c|}{52,328}   \\ \hline
+        \multicolumn{1}{|c|}{changePrice()}                                & \multicolumn{1}{c|}{34,639}   \\ \hline
+        \multicolumn{1}{|c|}{getBalance()}                                 & \multicolumn{1}{c|}{None}   \\ \hline
+        \multicolumn{1}{l}{}                                               & \multicolumn{1}{l}{}             \\ \hline
+        \multicolumn{2}{|c|}{\textit{\textbf{Liquidity Provider Fees}}}                                       \\ \hline   
+        \multicolumn{1}{|c|}{provideLiquidity()}                           & \multicolumn{1}{c|}{42,083}   \\ \hline
+        \multicolumn{1}{|c|}{getReward()}                                  & \multicolumn{1}{c|}{35,110}   \\ \hline
         \end{tabular}
     \end{center}
 \end{table}
+
+Regarding the smart contract customers interactions, the fees are much lower.
+Namely, when buying some tokens, the gas required is 65,102, while the
+invocation of sellToken function costs 62,875. We can observe that buying and
+selling tokens from and to the contract yields approximately the same overhead.
+Next, if a token holder transfers its tokens to another address, he can use only
+52,328 gas units, which is relatively cheap. Retrieving the available balance of
+tokens for a specific address occurs at no expense. \\
+
+Besides customer invocations, we have liquidity providers interacting with the
+smart contract. Providing liquidity costs 42,083 gas units. When designing the
+provide liquidity functionality, our goal was to keep it as cheap as possible to
+motive liquidity providers to back the token sale. We can argue that this has
+partially been achieved since depositing funds is cheaper than buying or selling
+tokens. Furthermore, when a liquidity provider requests its rewards, the costs
+are even cheaper at 35,110 gas units. Nonetheless, a liquidity provider will
+amortize its investment with more profits since 10\% of each token purchase goes
+to him. 
 
 \subsection*{Potential Hazards and Vulnerablities}
 
@@ -270,38 +268,65 @@ The following list presents vulnerabilities and mechanisms to moderate them. \\
 
 \textbf{\emph{DoS(Denial of Service) - Griefing: }}An attacker attempts to make a Smart Contract get stuck when executed. In the case of our implementation, a player might grieve and stop playing to halt the Smart Contract or make his opponent lose money. This is not wanted since the other player’s ETH will get stuck, and no one else will be able to play the game. \\
 
-\textbf{\emph{Mitigation: }}To counter this type of attack, we implemented a time limit mechanism. When a player interacts with the Smart Contract, a timer is initiated. The other player has only 10 minutes to play his move. If the time limit expires, the last player can request a refund and cancel the game. The funds of the lapsed player will be kept as punishment. If a single player tries to halt the program (i.e., only one player joins the game and his opponent refuse), the Smart Contract owner can join, to force the first player to play. If the first player denies playing, he will lose his money since the contract owner can request a refund, which will reset the game. Using this technique, the Smart Contract can never halt.\\
+\textbf{\emph{Mitigation: }}To counter this type of attack, we implemented a
+time limit mechanism. When a player interacts with the Smart Contract, a timer
+is initiated. The other player has only 10 minutes to play his move. If the time
+limit expires, the last player can request a refund and cancel the game. The
+funds of the lapsed player will be kept as punishment. If a single player tries
+to halt the program (i.e., only one player joins the game and his opponent
+refuse), the Smart Contract owner can join, to force the first player to play.
+If the first player denies playing, he will lose his money since the contract
+owner can request a refund, which will reset the game. Using this technique, the
+Smart Contract can never halt.\\
 
-\pagebreak
+\textbf{\emph{Re-Entrancy: }}An attacker might try to take advantage of the
+Smart Contract withdraw function by executing a re-entrancy attack. In more
+detail, when he invokes a withdrawal transaction, he can drive his transaction
+to a malicious fallback function on another Smart Contract that can recursively
+call again and again the withdraw function, trying to get more ETH.\\
 
-\textbf{\emph{Re-Entrancy: }}An attacker might try to take advantage of the Smart Contract withdraw function by executing a re-entrancy attack. In more detail, when he invokes a withdrawal transaction, he can drive his transaction to a malicious fallback function on another Smart Contract that can recursively call again and again the withdraw function, trying to get more ETH.\\
+\textbf{\emph{Mitigation: }}In order to avoid such unpleasant attacks, we
+execute the code of the Smart Contract in a particular way. When there is a
+withdrawal invocation, we check some constraints to ensure that the transaction
+sender is allowed to withdraw ETH. After that, we will pass any updates to the
+state of the Smart Contract and eventually make the call that sends the
+requested ETH to the recipient. It is important to make the ETH transfer after
+changing the Smart Contract state. If a reentrancy attack occurs on the next
+transaction, it will be stopped because function constraints will evaluate the
+transaction according to the updated state.\\
 
-\textbf{\emph{Mitigation: }}In order to avoid such unpleasant attacks, we execute the code of the Smart Contract in a particular way. When there is a withdrawal invocation, we check some constraints to ensure that the transaction sender is allowed to withdraw ETH. After that, we will pass any updates to the state of the Smart Contract and eventually make the call that sends the requested ETH to the recipient. It is important to make the ETH transfer after changing the Smart Contract state. If a reentrancy attack occurs on the next transaction, it will be stopped because function constraints will evaluate the transaction according to the updated state.\\
+\textbf{\emph{Front-Running: }}This attack happens on the Miner level. An
+attacker might clone your transaction and put a much higher gas limit on it.
+This results in the inclusion of his transaction to the next block instead of
+yours. This is inconvenient since another player might steal your spot in the
+game. \\
 
-\textbf{\emph{Front-Running: }}This attack happens on the Miner level. An attacker might clone your transaction
-and put a much higher gas limit on it. This results in the inclusion of his transaction to the
-next block instead of yours. This is inconvenient since another player might steal your spot in the game. \\
+\textbf{\emph{Mitigation: }}There is no straightforward solution since the
+problem lies at the transaction mining level. For the Matching Pennies game,
+front-running will not have a significant effect, except that a player might
+steal the position of another one. The disfavored player will have the
+opportunity to play in another moment. \\
 
-\textbf{\emph{Mitigation: }}There is no straightforward solution since the problem lies at the transaction mining level.
-For the Matching Pennies game, front-running will not have a significant effect, except that a player
-might steal the position of another one. The disfavored player will have the opportunity to play in another moment. \\
+\textbf{\emph{Overflow/Underflow: }}Matching Pennies game does not face this
+problem since it does not receive any integer value from the transaction sender.
+\\
 
-\textbf{\emph{Overflow/Underflow: }}Matching Pennies game does not face this problem since it does not receive any integer
-value from the transaction sender. \\
+\textbf{\emph{Randomness Source Exposure: }}Matching Pennies game does not face
+this problem since it does not use any random value during the code execution.
+\\
 
-\textbf{\emph{Randomness Source Exposure: }}Matching Pennies game does not face this problem since it does not use any
-random value during the code execution. \\
-
-\textbf{\emph{Delegation: }}Matching Pennies game does not face this problem since it does not use code
-from other Smart Contracts or Libraries. \\
+\textbf{\emph{Delegation: }}Matching Pennies game does not face this problem
+since it does not use code from other Smart Contracts or Libraries. \\
 
 \textbf{\emph{\underline{Other good practices:}}} \\ 
 
 \begin{itemize}
-    \item Use \emph{call()} instead of \emph{transfer()} or \emph{send()}.
-    Using \emph{call()}  might be insecure, but \emph{transfer()} and \emph{send()} can forward only 2300 gas. In the future 
-    gas costs might change, and 2300 gas might not be enough. As a result using \emph{call()} properly is the right approach.
-    Below we can see an example of using \emph{call()} function and handling its outcome correctly.\\
+    \item Use \emph{call()} instead of \emph{transfer()} or \emph{send()}. Using
+    \emph{call()}  might be insecure, but \emph{transfer()} and \emph{send()}
+    can forward only 2300 gas. In the future gas costs might change, and 2300
+    gas might not be enough. As a result using \emph{call()} properly is the
+    right approach. Below we can see an example of using \emph{call()} function
+    and handling its outcome correctly.\\
     \begin{lstlisting}[language=Solidity]
         (bool success, ) = msg.sender.call.value(amount)(""); 
         require(success, "Transfer failed.");
@@ -316,31 +341,24 @@ from other Smart Contracts or Libraries. \\
 
 \subsection*{Smart Contract Deployment and Execution History}
 
-Owner Address: 0x79BE6e946368520419BF4A20aC45b28fd3a5b2bA
+Owner Address: 0x1959f7433D617977e144cC3Bb722D794384D562B
 
 \begin{itemize}
-    \item \textbf{Smart Contract deployment} \\
-    
-    TX Hash: \\
-    Contract Address: 0xF87a42464eEf144fF0C81cE8d5E927548CF4695D \\
-
-    \item \textbf{Buy Tokens} \\
-    
-    TX Hash:
-
-    \item \textbf{Get Rewards} \\
-
-    TX Hash:
-
-    \item \textbf{Change Price} \\
-    
-    TX Hash:
-    
-    \item \textbf{Transfer Tokens} \\
-    
-    TX Hash:
-
-    \item \textbf{Sell Token} \\
+    \item \textbf{Smart Contract deployment}\\
+    TX Hash: 0x5ba0d9a48485c1400f72bf2d0482b869f44935ceb38cbb8a720a5d66c391ece0 \\
+    Contract Address: 0x8252e289f6ef096CCb0647322102ac5459D1Df49
+    \item \textbf{Buy Tokens}\\
+    TX Hash: 0xeaf2f20e09dc42dbf743d6edd7618e831f3ce195967ccb4624b4b6dfa395ab88
+    \item \textbf{Get Rewards}\\
+    TX Hash: 0x7aef6df0c8b4a3d8f7685c3e7cc2f33117addeea284d0fd940abbab9e17c60b7
+    \item \textbf{Change Price}\\
+    TX Hash: 0xae26b213a00cd543b3a57e97d9f0626b18812df69fb10cc843432302442f122a
+    \item \textbf{Transfer Tokens}\\
+    TX Hash: 0xfa2a9b619d58b934957503f8afdd08ceafcd71e228d7d27fc357c8ad4b3c1976
+    \item \textbf{Sell Token}\\
+    TX Hash: 0x53be3484f8fe51bd58bc5f4aec9f0ae45711b7b8924c23f70f512ba21f0c5aa1
+    \item \textbf{Provide Liquidity}\\
+    TX Hash: 0x43f228412eb74dc55e40c95f5f020e4efe3bdc4b6eef91dda21a2041f08dd002\\
 \end{itemize}
 
 \subsection*{Implementation Code}

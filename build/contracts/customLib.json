@@ -2987,10 +2987,15 @@
       "events": {},
       "links": {},
       "address": "0xc0b843678E1E73c090De725Ee1Af6a9F728E2C47"
+    },
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xc0b843678E1E73c090De725Ee1Af6a9F728E2C47"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-12-24T17:05:04.775Z",
+  "updatedAt": "2021-12-27T09:15:21.266Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

@@ -5,8 +5,8 @@ import "./customLib.sol";
 
 contract Token {
     address private owner;
-    uint256 private contractBalance = 0;
-    uint256 private circulatingTokens = 0;
+    uint256 public contractBalance = 0;
+    uint256 public circulatingTokens = 0;
 
     mapping(address => uint256) private balances;
     mapping(address => uint256) private liquidityProviders;
@@ -78,7 +78,7 @@ contract Token {
             "This function is restricted to the contract's owner"
         );
         require(
-            contractBalance >= circulatingTokens * price,
+            contractBalance >= (circulatingTokens * price),
             "Not enough liquidity"
         );
 

@@ -32,12 +32,12 @@
 
 \section*{Part 1}
 
-For Part A of this assignment we are required to interact with a smart contract
-deployed on the \emph{Ethereum Ropsten network}. In more detail, we should call
-the \emph{register} method, giving as input arguments a secret key and our student
-number. Since \emph{Ethereum} is a public Blockchain, everything can be accessed
-on chain. Hence, the following script was used to retrive the secret key from
-the smart contract's storage. \\
+For Part A of this assignment, we are required to interact with a smart contract
+deployed on the Ethereum Ropsten network. In more detail, we should call the
+register method, giving input arguments a secret key and our student number.
+Since Ethereum is a public Blockchain, everything can be accessed on-chain.
+Hence, the following script was used to retrieve the secret key from the smart
+contract's storage. \\
 
 \begin{lstlisting}[language=JavaScript]
 const Web3 = require('web3');
@@ -53,9 +53,9 @@ web3.eth.getStorageAt(contract_address, 1).then(result => {
 
 \vspace{5mm}
 
-The found key is : \emph{actually...;)}. We imported the smart contract source
-code and deployed address into remix and finally called the \emph{register}
-function with input \emph{actually...;)} and \emph{s2187344} as inputs. \\
+The found key is: "actually...;)". We imported the smart contract source code
+and address into Remix and finally called the register function with
+"actually...;)" and "s2187344" as inputs. \\
 
 Transaction Hash : 0xc6ebbfea38258b115d07d5826667dfdd2445a5cbe277f0c3e18fa5a294ef3d32
 
@@ -141,8 +141,8 @@ module.exports = function(deployer, accounts) {
 };
 \end{lstlisting}
 
-\textbf{\underline{Variables}} \\
 
+\textbf{\underline{Variables}} \\
 \textbf{\emph{address owner:}} This variable is set on deployment, and stores the smart
 contract's owner address.\\
 \textbf{\emph{uint256 contractBalance:}} This variable stores the number of \emph{wei} deposited
@@ -164,7 +164,6 @@ be available to liquidity providers as rewards for their services.\\
 \emph{wei}.\\
 
 \textbf{\underline{Events}} \\
-
 \textbf{\emph{event Purchase:}} Whenever a token purchase is fulfilled, an event stating
 the buyer's address and the purchased amount, is emitted.\\
 \textbf{\emph{event Sell:}} Whenever a token holder sells its tokens back to the smart
@@ -177,7 +176,6 @@ adddresses, as well as the transfered amount of tokens.\\
 changes the token price.\\
 
 \textbf{\underline{Functions}} \\
-
 \textbf{\emph{constructor():}} This is the smart contract constractor. It is called
 whenever the code is deployed for the first time, and sets the contract owner,
 as the initiator of the transaction. The smart contract constructor requirement

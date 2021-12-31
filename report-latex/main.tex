@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 
 \usepackage{graphicx}
-\usepackage[left=1.5cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[left=1cm,right=1cm,top=2cm,bottom=2cm]{geometry}
 \usepackage{listings}
 \usepackage{lstlang-go}
 \usepackage{jslistings}
@@ -264,21 +264,21 @@ Developing a Smart Contract can always be challenging. This is because, on a pub
 When developing the Matching Pennies game, we took into consideration possible attacks.
 The following list presents vulnerabilities and mechanisms to moderate them. \\
 
-\textbf{\emph{DoS(Denial of Service) - Griefing: }}An attacker attempts to make a Smart Contract get stuck when executed. In the case of our implementation, a player might grieve and stop playing to halt the Smart Contract or make his opponent lose money. This is not wanted since the other player’s ETH will get stuck, and no one else will be able to play the game. \\
+\textbf{\emph{DoS(Denial of Service) - Griefing: }}An attacker attempts to make
+a Smart Contract get stuck when executed. In the case of our implementation, we
+don't face such problems. The nature of the code does not allow the contract to
+get stuck. All functions are atomic, which means that they will complete or
+fail. The only scenario in which we might face grief in our smart contract is
+when there is insufficient liquidity to change that token price. In other words,
+if there are not enough liquidity providers, the contract owner won't be able to
+increase the token price frequently.\\
 
-\textbf{\emph{Mitigation: }}To counter this type of attack, we implemented a
-time limit mechanism. When a player interacts with the Smart Contract, a timer
-is initiated. The other player has only 10 minutes to play his move. If the time
-limit expires, the last player can request a refund and cancel the game. The
-funds of the lapsed player will be kept as punishment. If a single player tries
-to halt the program (i.e., only one player joins the game and his opponent
-refuse), the Smart Contract owner can join, to force the first player to play.
-If the first player denies playing, he will lose his money since the contract
-owner can request a refund, which will reset the game. Using this technique, the
-Smart Contract can never halt.\\
+\textbf{\emph{Mitigation: }}To mitigate this minor issue, we require that the
+contract owner provide initial liquidity to the smart contract by becoming the
+first liquidity provider. \\
 
 \textbf{\emph{Re-Entrancy: }}An attacker might try to take advantage of the
-Smart Contract withdraw function by executing a re-entrancy attack. In more
+Smart Contract sellToken function by executing a re-entrancy attack. In more
 detail, when he invokes a withdrawal transaction, he can drive his transaction
 to a malicious fallback function on another Smart Contract that can recursively
 call again and again the withdraw function, trying to get more ETH.\\
@@ -288,58 +288,63 @@ execute the code of the Smart Contract in a particular way. When there is a
 withdrawal invocation, we check some constraints to ensure that the transaction
 sender is allowed to withdraw ETH. After that, we will pass any updates to the
 state of the Smart Contract and eventually make the call that sends the
-requested ETH to the recipient. It is important to make the ETH transfer after
+requested ETH to the recipient. It is essential to make the ETH transfer after
 changing the Smart Contract state. If a reentrancy attack occurs on the next
 transaction, it will be stopped because function constraints will evaluate the
 transaction according to the updated state.\\
 
-\textbf{\emph{Front-Running: }}This attack happens on the Miner level. An
+\textbf{\emph{Front-Running: }} This attack happens on the Miner level. An
 attacker might clone your transaction and put a much higher gas limit on it.
-This results in the inclusion of his transaction to the next block instead of
-yours. This is inconvenient since another player might steal your spot in the
-game. \\
+This results in including his transaction in the next block instead of yours.
+This might be inconvenient when a buyer tries to buy some tokens priced at 10
+Wei, and the smart contract owner front-runs him to increase the price. Further,
+we have to note that our token has no limited supply, and thus, there is no
+meaning in front-running its purchase. Everyone can buy any amount of tokens. \\
 
-\textbf{\emph{Mitigation: }}There is no straightforward solution since the
-problem lies at the transaction mining level. For the Matching Pennies game,
-front-running will not have a significant effect, except that a player might
-steal the position of another one. The disfavored player will have the
-opportunity to play in another moment. \\
+\textbf{\emph{Mitigation: }}There is no straightforward solution to
+front-running since the problem lies at the transaction mining level. For our
+custom token, front-running will not have a significant effect. \\
 
-\textbf{\emph{Overflow/Underflow: }}Matching Pennies game does not face this
-problem since it does not receive any integer value from the transaction sender.
-\\
+\textbf{\emph{Overflow/Underflow: }} Our custom token does not face this problem
+since it is coded using version 0.8.0 of Solidity, which automatically resolves
+any issues of over/underflow and aborts the execution of the smart contract.\\
 
-\textbf{\emph{Randomness Source Exposure: }}Matching Pennies game does not face
-this problem since it does not use any random value during the code execution.
-\\
+\textbf{\emph{Randomness Source Exposure: }} Our custom token does not involve
+using any random value. \\
 
-\textbf{\emph{Delegation: }}Matching Pennies game does not face this problem
-since it does not use code from other Smart Contracts or Libraries. \\
+\textbf{\emph{Delegation: }}In our smart contract, we used a custom library to
+send funds to an address when a sale occurs. We assume that this library is safe
+as the assignment authors have provided it. \\
 
-\textbf{\emph{\underline{Other good practices:}}} \\ 
+\textbf{\emph{\underline{Other good practices:}}}
 
 \begin{itemize}
     \item Use \emph{call()} instead of \emph{transfer()} or \emph{send()}. Using
     \emph{call()}  might be insecure, but \emph{transfer()} and \emph{send()}
     can forward only 2300 gas. In the future gas costs might change, and 2300
-    gas might not be enough. As a result using \emph{call()} properly is the
-    right approach. Below we can see an example of using \emph{call()} function
-    and handling its outcome correctly.\\
+    gas might not be enough. As a result, using \emph{call()} properly is the
+    right approach. We use a custom library that uses call() to send ETH; thus,
+    we check its output correctness, as shown in the example below.\\
     \begin{lstlisting}[language=Solidity]
-        (bool success, ) = msg.sender.call.value(amount)(""); 
-        require(success, "Transfer failed.");
+        (bool success = customLib.customSend(amount * tokenPrice, msg.sender);
+        require(success, "Transfer failed!");
     \end{lstlisting}
-    \item If you need to have a callback function, keep it simple.
-    \item Any public-permissionless blockchain reveals transaction details to 
-    the ledger. Due to this fact, in data-sensitive applications such as the
-    Matching Pennies game, we need to hide users' data. We can do this by following a
-    two-phase process: committing a value obscured by hashing the bet and some salt
-    and then exposing the real value.
+    \item Furthermore, a liquidity provider might want to receive its rewards.
+    For this part of the implementation, we decided it is safer for the smart
+    contract to have an external user initiate the reward distribution. Instead
+    of pushing the tokens into his address, we have them pulling their portion.
+    \item As for our fallback function, we keep it simple, allowing only two
+    operations. It can only be used to provide liquidity or receive rewards. Any
+    other operation on the smart contract's fallback functions will result in a
+    deadlock.
+    \item Moreover, it is an excellent practice to emit events when a critical
+    transaction is complete. Hence, we emit events whenever a token sale,
+    purchase, or transfer occurs.
 \end{itemize}
 
 \subsection*{Smart Contract Deployment and Execution History}
 
-Owner Address: 0x1959f7433D617977e144cC3Bb722D794384D562B
+\textbf{Owner Address:} 0x1959f7433D617977e144cC3Bb722D794384D562B
 
 \begin{itemize}
     \item \textbf{Smart Contract deployment}\\
@@ -356,12 +361,11 @@ Owner Address: 0x1959f7433D617977e144cC3Bb722D794384D562B
     \item \textbf{Sell Token}\\
     TX Hash: 0x53be3484f8fe51bd58bc5f4aec9f0ae45711b7b8924c23f70f512ba21f0c5aa1
     \item \textbf{Provide Liquidity}\\
-    TX Hash: 0x43f228412eb74dc55e40c95f5f020e4efe3bdc4b6eef91dda21a2041f08dd002\\
+    TX Hash: 0x43f228412eb74dc55e40c95f5f020e4efe3bdc4b6eef91dda21a2041f08dd002
 \end{itemize}
 
 \subsection*{Implementation Code}
 \begin{lstlisting}
-// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.00 <0.9.0;
 
 import "./customLib.sol";
@@ -370,15 +374,12 @@ contract Token {
     address private owner;
     uint256 private contractBalance = 0;
     uint256 private circulatingTokens = 0;
-
     mapping(address => uint256) private balances;
     mapping(address => uint256) private liquidityProviders;
     uint256 private numberOfProviders = 0;
     uint256 private totalLiquidity = 0;
     uint256 private rewardsPool = 0;
-
     uint256 public tokenPrice = 10;
-
     event Purchase(address indexed buyer, uint256 amount);
     event Sell(address indexed seller, uint256 amount);
     event Price(uint256 price);
@@ -387,7 +388,6 @@ contract Token {
         address indexed receiver,
         uint256 amount
     );
-
     constructor() payable {
         require(
             msg.value == 100,
@@ -444,7 +444,6 @@ contract Token {
             contractBalance >= circulatingTokens * price,
             "Not enough liquidity"
         );
-
         tokenPrice = price;
         emit Price(price);
         return true;
@@ -466,12 +465,10 @@ contract Token {
             liquidityProviders[msg.sender] >= 100,
             "You are not a liquidity provider"
         );
-
         require(
             rewardsPool % numberOfProviders == 0,
             "You can not receive rewards now (unfair division)"
         );
-
         uint256 allowance = (liquidityProviders[msg.sender] / totalLiquidity) *
             100;
         balances[msg.sender] += (rewardsPool * allowance) / 100;
@@ -490,4 +487,99 @@ contract Token {
 
 \section*{Part 2 B}
 
+KYC, also known as  "know your customer", is common practice among financial
+institutions when a new client enters their business. They use KYC to verify the
+client's identity and evaluate the risks of maintaining a business relationship.
+A straightforward KYC methodology might include submitting an identification
+document such as a birth certificate, proof of address of a legitimate utility
+bill, and a recent face photograph of the client. Within the context of Part 2 B
+of this assignment, we need to describe such a mechanism for our custom token
+sale. Further, we will argue if this is feasible to implement on the blockchain. \\
+
+It is more than evident that having many customers yields a requirement for
+storing thousands of documents. The Ethereum blockchain is not the best option
+for storing documents. Foremost, we can not directly store multimedia such as
+pdf files and images on-chain. We should convert them into an intermediate text
+form such as base64 encoding. This is going to add computational overhead.
+Moreover, storing 1KB of data requires approximately 640K gas which is not
+cheap. Besides that, Ethereum is a public permissionless blockchain, thus
+storing KYC documents on-chain can violate the customers' privacy. Hence in our
+KYC  proposal, we attempt to instrument a hybrid solution using both blockchain
+and a centralized server to process new customer requests. The main idea of our
+implementation is that a new customer submits its documents on the server for
+approval while publishing its KYC identification fingerprint on-chain.
+Afterward, the smart contract owner reviews the submitted documents off-chain,
+and if they are valid, he can approve them and enable the client to purchase
+tokens on-chain. There follows a more thorough explanation. \\
+
+
+When designing the KYC mechanism, the foremost priority was user data privacy,
+and gas efficiency and fairness. For this reason, we adopt a public-key
+cryptography scheme to encrypt identification documents and sign them. To
+achieve that, we introduce a central trusted authority that keeps the public
+keys of both contract owner and client. When a new customer wants to initiate a
+KYC check, mind the steps below, as depicted in Figure \ref{fig:kyc-process}
+
+\begin{enumerate}
+    \item Clients and the contract owner publish their public keys to the trusted authority.
+    \item Clients and the contract owner retrieve public keys of the entity they
+    desire from the trusted authority.
+    \item The server publishes a Nonce that encrypts using the client's public
+    key and sends it to the client, as a challenge, to include in its subsequent
+    KYC request. The client decrypts the Nonce using its private key.
+    \item The user prepares a PDF file, including its identification documents.
+    We call this, Data. Next, the user concatenates Data and the received Nonce
+    and encrypts them using the server's public key, producing a Ciphertext.
+    Then he signs the Ciphertext by hashing it and encrypting it using his
+    private key.
+    \item In step 5, the user forwards the signed Ciphered text to the server
+    while publishing its signature on-chain.
+    \item The server receives the signed Ciphertext and proceeds to validate it.
+    Mainly, we check for Nonce validity and Data (documents) validity and
+    signature.
+    \item We retrieve the on-chain recorded signature and perform a peculiar
+    3-way check, comparing the submitted to server signature with the
+    recalculated Ciphertext Hash and the signature submitted on-chain.
+    \item If everything is valid, the contract owner can proceed and approve the
+    client's requests to purchase tokens from the smart contract. 
+\end{enumerate}
+
+We decided to introduce the concept of a nonce to avoid replay attacks when
+submitting the identification documents to the server. Further, we have both
+client and owner interacting with the smart contract, splitting the gas costs of
+completing the KYC process. This approach provides gas fairness and transparency
+to the client, ensuring that its digital fingerprint/signature is correct. This
+is important since that digital fingerprint associates the client with an
+encrypted form of its KYC documents.\\
+
+Indubitably, we have to extend our smart contract's public  API to support the
+mechanism above. This hybrid KYC tool requires very few changes to the smart
+contract, narrowing the gas costs required to implement it. In more detail, we
+need the following function and variables.\\
+
+\begin{lstlisting}[language=Solidity]
+    mapping(address => KYC) public kyc;
+    struct KYC {
+        bytes64 finger_print ;
+        bool approved;
+    }
+    function setFingerPrint(bytes64 finger_print) public returns (bool);
+    function getFingerPrint(address client_address) public returns (bytes64);
+    function approveClient(address client_address) public returns (bool);
+\end{lstlisting}
+
+Finally, we need to add a requirement statement into the buyToken function to
+check if the client's address is approved.  \\
+
+\begin{lstlisting}[language=Solidity]
+    require(kyc[msg.sender].approved == True, "Your are not allowd to buy tokens");
+\end{lstlisting}
+
+\begin{figure}[htpb]
+    \begin{center}
+        \includegraphics[width=18cm]{kyc.png}
+        \caption{KYC process}
+        \label{fig:kyc-process}
+    \end{center}
+\end{figure} 
 \end{document}

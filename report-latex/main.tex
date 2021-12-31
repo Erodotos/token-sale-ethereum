@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 
 \usepackage{graphicx}
-\usepackage[left=1cm,right=1cm,top=2cm,bottom=1.5cm]{geometry}
+\usepackage[left=1cm,right=1cm,top=1.5cm,bottom=1.5cm]{geometry}
 \usepackage{listings}
 \usepackage{lstlang-go}
 \usepackage{jslistings}
@@ -129,6 +129,8 @@ file and used the link method to reference it. There follows the deployment and
 link code for the operation as mentioned earlier and a detailed overview of smart
 contract's variables, functions and events. \\
 
+\pagebreak
+
 \begin{lstlisting}[language=JavaScript]
 const Token = artifacts.require("Token");
 const CustomLibrary = artifacts.require("customLib");
@@ -139,7 +141,6 @@ module.exports = function(deployer, accounts) {
     deployer.deploy(Token, { value: "100" })
 };
 \end{lstlisting}
-
 
 \textbf{\underline{Variables}} \\
 \textbf{\emph{address owner:}} This variable is set on deployment, and stores the smart
@@ -213,7 +214,8 @@ interacting with the smart contract. \\
 
 Gas costs appear in the following table. The smart contract owner has to pay
 1,389,915 gas units to deploy the code. This is a high amount of gas, making the
-smart contract expensive to deploy initially. \\
+smart contract expensive to deploy initially. Using the already deployed library
+save us only 39,400 gas which is not much. \\
 
 \begin{table}[htpb]
     \begin{center}
@@ -221,7 +223,8 @@ smart contract expensive to deploy initially. \\
         \multicolumn{2}{c}{\textbf{Gas Costs}}                                                                \\
         \multicolumn{1}{l}{}                                                & \multicolumn{1}{l}{}            \\ \hline
         \multicolumn{2}{|c|}{\textit{\textbf{Contract Owner Fees}}}                                           \\ \hline
-        \multicolumn{1}{|c|}{Contract Deployment}                           & \multicolumn{1}{c|}{1,389,915}  \\ \hline
+        \multicolumn{1}{|c|}{Contract Deployment (lib)}                     & \multicolumn{1}{c|}{1,389,915}  \\ \hline
+        \multicolumn{1}{|c|}{Contract Deployment (no-lib) }                 & \multicolumn{1}{c|}{1,429,315}  \\ \hline
         \multicolumn{1}{l}{}                                                & \multicolumn{1}{l}{}            \\ \hline
         \multicolumn{2}{|c|}{\textit{\textbf{Customer Fees}}}                                                 \\ \hline
         \multicolumn{1}{|c|}{buyToken()}                                   & \multicolumn{1}{c|}{65,102}   \\ \hline
@@ -253,7 +256,9 @@ partially been achieved since depositing funds is cheaper than buying or selling
 tokens. Furthermore, when a liquidity provider requests its rewards, the costs
 are even cheaper at 35,110 gas units. Nonetheless, a liquidity provider will
 amortize its investment with more profits since 10\% of each token purchase goes
-to him. 
+to him.
+
+\pagebreak
 
 \subsection*{Potential Hazards and Vulnerablities}
 
@@ -368,6 +373,8 @@ as the assignment authors have provided it. \\
     \item \textbf{Provide Liquidity}\\
     TX Hash: 0x43f228412eb74dc55e40c95f5f020e4efe3bdc4b6eef91dda21a2041f08dd002
 \end{itemize}
+
+\pagebreak
 
 \subsection*{Implementation Code}
 \begin{lstlisting}

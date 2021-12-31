@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 
 \usepackage{graphicx}
-\usepackage[left=1cm,right=1cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[left=1cm,right=1cm,top=2cm,bottom=1.5cm]{geometry}
 \usepackage{listings}
 \usepackage{lstlang-go}
 \usepackage{jslistings}
@@ -35,7 +35,7 @@
 For Part A of this assignment, we are required to interact with a smart contract
 deployed on the Ethereum Ropsten network. In more detail, we should call the
 register method, giving input arguments a secret key and our student number.
-Since Ethereum is a public Blockchain, everything can be accessed on-chain.
+Since Ethereum is a public blockchain, everything can be accessed on-chain.
 Hence, the following script was used to retrieve the secret key from the smart
 contract's storage. \\
 
@@ -54,7 +54,7 @@ web3.eth.getStorageAt(contract_address, 1).then(result => {
 \vspace{5mm}
 
 The found key is: "actually...;)". We imported the smart contract source code
-and address into Remix and finally called the register function with
+and address into \emph{Remix} and finally called the register function with
 "actually...;)" and "s2187344" as inputs. \\
 
 Transaction Hash : 0xc6ebbfea38258b115d07d5826667dfdd2445a5cbe277f0c3e18fa5a294ef3d32
@@ -87,7 +87,7 @@ Figure \ref{fig:smart-contract-example} illustrates the smart contract's life cy
 step A, the owner (address A) deploys the smart contract providing 100 Wei. This
 automatically registers him as the first liquidity provider. Next, in step B, we
 can observe a buyer (address B) conducting a buy request to the smart contract.
-For instance, he wants to buy 30 tokens priced at ten Wei each. Hence, he has to
+For instance, he wants to buy 30 tokens priced at 10 Wei each. Hence, he has to
 send 300 Wei to the smart contract and provide the number of tokens as an input
 parameter. We check for the validity of the input data, and if everything is
 accurate, we proceed. 10\% of the purchased tokens is contributed into a rewards
@@ -96,9 +96,8 @@ objectives in calculating the percentage, we allow purchases of multiples of 10.
 Later, in step C the buyer can view its balance by calling the getBalance()
 method of the smart contract. At this point (D), a liquidity provider can
 receive rewards from the rewards pool. He will get a portion of tokens according
-to the fraction of liquidity he provided to the total liquidity. In other words,
-each provider can increase the rewards he receives by offering more liquidity.
-\\
+to the fraction of liquidity he provided to the total liquidity.
+Each provider can increase the rewards he receives by offering more liquidity.\\
 
 Nonetheless, we have to note that because solidity does not support floats, we
 restrict the amount a liquidity provider can offer to multiples of 100 Wei.
@@ -114,20 +113,20 @@ new price. \\
 
 Moreover, a token holder can transfer its tokens to another address. This is
 depicted in step F, where the user calls the smart contract providing the
-receiver's address and the transfer amount of tokens. \\
+receiver's address and the amount of tokens. \\
 
 Finally, any token holder may sell his tokens to the smart contract for ETH
-considering the current token price in Wei. The sell token function does not
+considering the current token price in Wei. The sellToken function does not
 directly transfer ETH to the user. Instead, a custom library deployed on the
 Ropsten network is used. One of the main challenges of this assignment was to
 link an already deployed library into our smart contract. This was impossible to
-achieve through remix online editor. Thus we used Truffle smart contract
+achieve through \emph{Remix} online editor. Thus we used \emph{Truffle} smart contract
 development framework to achieve the desired outcome. Practically, we compiled
 the customLib.sol locally to generate a reference ABI and afterward import the
 library into our Token.sol contract. Since we needed to use an already deployed
 instance of the library, we specified its address in the migrations javascript
 file and used the link method to reference it. There follows the deployment and
-link script for the operation as mentioned earlier and a detailed of smart
+link code for the operation as mentioned earlier and a detailed overview of smart
 contract's variables, functions and events. \\
 
 \begin{lstlisting}[language=JavaScript]
@@ -145,7 +144,7 @@ module.exports = function(deployer, accounts) {
 \textbf{\underline{Variables}} \\
 \textbf{\emph{address owner:}} This variable is set on deployment, and stores the smart
 contract's owner address.\\
-\textbf{\emph{uint256 contractBalance:}} This variable stores the number of \emph{wei} deposited
+\textbf{\emph{uint256 contractBalance:}} This variable stores the number of Wei deposited
 into the smart contract.\\
 \textbf{\emph{uint256 circulatingTokens:}}  This variable stores the number of
 circulating tokens.\\
@@ -160,8 +159,7 @@ liquidity providers.\\
 provided during the complete life cycle of the smart contract.\\
 \textbf{\emph{uint256 rewardsPool:}} This variable stores the amount of tokens that will
 be available to liquidity providers as rewards for their services.\\
-\textbf{\emph{uint256 tokenPrice:}} This variable stores the current token price in
-\emph{wei}.\\
+\textbf{\emph{uint256 tokenPrice:}} This variable stores the current token price in Wei.\\
 
 \textbf{\underline{Events}} \\
 \textbf{\emph{event Purchase:}} Whenever a token purchase is fulfilled, an event stating
@@ -176,15 +174,15 @@ adddresses, as well as the transfered amount of tokens.\\
 changes the token price.\\
 
 \textbf{\underline{Functions}} \\
-\textbf{\emph{constructor():}} This is the smart contract constractor. It is called
-whenever the code is deployed for the first time, and sets the contract owner,
-as the initiator of the transaction. The smart contract constructor requirement
-is that the owner provides 100 \emph{wei} as initial liquidity. Thus he becomes
-the first liquidity provider.\\
+\textbf{\emph{constructor():}} This is the smart contract constractor. It is
+called whenever the code is deployed for the first time, and sets the contract
+owner, as the initiator of the transaction. The smart contract constructor
+requirement is that the owner provides 100 Wei as initial liquidity. In
+other words, he becomes the first liquidity provider.\\
 \textbf{\emph{buyToken():}} Whenever a buyer wants to exchange his ETH for our token has
 to call this function. In more detail, he needs to provide as input the number
 of tokens that he desires to purchase and send the proportional amount of ETH,
-considering the token price which is in \emph{wei}.\\
+considering the token price which is in Wei.\\
 \textbf{\emph{transfer():}} This function can be called by a token holder that desires to
 transfer a specific amount of tokens to an other address.\\
 \textbf{\emph{sellToken():}} This function enables a token holder to exchange his tokens
@@ -199,21 +197,21 @@ simultaneously.\\
 posetion of the fucntion's caller.\\
 \textbf{\emph{provideLiquidity():}} This is an internal function that can be triggered
 through the fallback function. It receives an address and the amount of provided
-liquidity. Subsequentyl, it registers this user as a liquidity provider. \\
+liquidity. Subsequently, it registers this user as a liquidity provider. \\
 \textbf{\emph{getReward():}} This is an internal function that can be trigered through
 the fallback function and only if the caller is a registered liquidity provider.
 Its execution results into receiving a proportion of the reward tokens from the
 reward pool.\\
 \textbf{\emph{fallback():}} This function can be used with different arguments and can
-serve different purposes. If it is called providing some ETH, registers you as a
-liquidity provider; Else, it can be used by liquidity provider to receive its
+serve different purposes. If it is called providing some ETH, registers the user as a
+liquidity provider; else, it can be used by liquidity provider to receive its
 rewards.
 
 \subsection*{Gas Costs Evaluation}
 This section measures and evaluates the gas cost we expect to have when deploying and
-interacting with the Smart Contract. \\
+interacting with the smart contract. \\
 
-Gas costs appear in the following table. The Smart Contract owner has to pay
+Gas costs appear in the following table. The smart contract owner has to pay
 1,389,915 gas units to deploy the code. This is a high amount of gas, making the
 smart contract expensive to deploy initially. \\
 
@@ -259,10 +257,16 @@ to him.
 
 \subsection*{Potential Hazards and Vulnerablities}
 
-Developing a Smart Contract can always be challenging. This is because, on a public-permissionless blockchains, everything is observable by everyone. This fact makes it difficult when it comes to securing users’ data. Besides that, a developer has to be alert to write code that is attack-resistant. Smart Contracts expose a broad spectrum of vulnerabilities, enabling an adversarial entity to exploit them for his interest.\\
+Developing a Smart Contract can always be challenging. This is because, on a
+public-permissionless blockchains, everything is observable by everyone. This
+fact makes it difficult when it comes to securing users’ data. Besides that, a
+developer has to be alert to write code that is attack-resistant. Smart
+contracts expose a broad spectrum of vulnerabilities, enabling an adversarial
+entity to exploit them for his interest.\\
 
-When developing the Matching Pennies game, we took into consideration possible attacks.
-The following list presents vulnerabilities and mechanisms to moderate them. \\
+When developing our custom token, we took into consideration possible
+attacks. The following list presents vulnerabilities and mechanisms to moderate
+them. \\
 
 \textbf{\emph{DoS(Denial of Service) - Griefing: }}An attacker attempts to make
 a Smart Contract get stuck when executed. In the case of our implementation, we
@@ -271,25 +275,26 @@ get stuck. All functions are atomic, which means that they will complete or
 fail. The only scenario in which we might face grief in our smart contract is
 when there is insufficient liquidity to change that token price. In other words,
 if there are not enough liquidity providers, the contract owner won't be able to
-increase the token price frequently.\\
+increase the token price frequently. Similarly, if don't have buyers, liquidity
+providers won't receive rewards and thus lose their initial investment. \\
 
-\textbf{\emph{Mitigation: }}To mitigate this minor issue, we require that the
+\textbf{\emph{Mitigation: }}To mitigate this issue, we require that the
 contract owner provide initial liquidity to the smart contract by becoming the
 first liquidity provider. \\
 
 \textbf{\emph{Re-Entrancy: }}An attacker might try to take advantage of the
-Smart Contract sellToken function by executing a re-entrancy attack. In more
-detail, when he invokes a withdrawal transaction, he can drive his transaction
+smart contract sellToken function by executing a re-entrancy attack. In more
+detail, when he invokes a sellToken transaction, he can drive his transaction
 to a malicious fallback function on another Smart Contract that can recursively
-call again and again the withdraw function, trying to get more ETH.\\
+call again and again the sellToken function, trying to get more ETH.\\
 
 \textbf{\emph{Mitigation: }}In order to avoid such unpleasant attacks, we
-execute the code of the Smart Contract in a particular way. When there is a
+execute the code of the smart contract in a particular way. When there is a
 withdrawal invocation, we check some constraints to ensure that the transaction
 sender is allowed to withdraw ETH. After that, we will pass any updates to the
-state of the Smart Contract and eventually make the call that sends the
+state of the smart contract and eventually make the call that sends the
 requested ETH to the recipient. It is essential to make the ETH transfer after
-changing the Smart Contract state. If a reentrancy attack occurs on the next
+changing the smart contract state. If a reentrancy attack occurs on the next
 transaction, it will be stopped because function constraints will evaluate the
 transaction according to the updated state.\\
 
@@ -307,7 +312,7 @@ custom token, front-running will not have a significant effect. \\
 
 \textbf{\emph{Overflow/Underflow: }} Our custom token does not face this problem
 since it is coded using version 0.8.0 of Solidity, which automatically resolves
-any issues of over/underflow and aborts the execution of the smart contract.\\
+any issues of over/under flow and aborts the execution of the smart contract.\\
 
 \textbf{\emph{Randomness Source Exposure: }} Our custom token does not involve
 using any random value. \\
@@ -329,10 +334,10 @@ as the assignment authors have provided it. \\
         (bool success = customLib.customSend(amount * tokenPrice, msg.sender);
         require(success, "Transfer failed!");
     \end{lstlisting}
-    \item Furthermore, a liquidity provider might want to receive its rewards.
-    For this part of the implementation, we decided it is safer for the smart
-    contract to have an external user initiate the reward distribution. Instead
-    of pushing the tokens into his address, we have them pulling their portion.
+    \item A liquidity provider might want to receive its rewards. For this part
+    of the implementation, we decided it is safer for the smart contract to have
+    an external user initiate the reward distribution, instead of pushing the
+    tokens into his address. In other words we have them pulling their rewards.
     \item As for our fallback function, we keep it simple, allowing only two
     operations. It can only be used to provide liquidity or receive rewards. Any
     other operation on the smart contract's fallback functions will result in a
@@ -518,7 +523,7 @@ and gas efficiency and fairness. For this reason, we adopt a public-key
 cryptography scheme to encrypt identification documents and sign them. To
 achieve that, we introduce a central trusted authority that keeps the public
 keys of both contract owner and client. When a new customer wants to initiate a
-KYC check, mind the steps below, as depicted in Figure \ref{fig:kyc-process}
+KYC procedure, follows the steps below, as depicted in Figure \ref{fig:kyc-process}
 
 \begin{enumerate}
     \item Clients and the contract owner publish their public keys to the trusted authority.
@@ -533,7 +538,7 @@ KYC check, mind the steps below, as depicted in Figure \ref{fig:kyc-process}
     Then he signs the Ciphertext by hashing it and encrypting it using his
     private key.
     \item In step 5, the user forwards the signed Ciphered text to the server
-    while publishing its signature on-chain.
+    while publishing its signature/fingerprint on-chain.
     \item The server receives the signed Ciphertext and proceeds to validate it.
     Mainly, we check for Nonce validity and Data (documents) validity and
     signature.
@@ -572,7 +577,7 @@ Finally, we need to add a requirement statement into the buyToken function to
 check if the client's address is approved.  \\
 
 \begin{lstlisting}[language=Solidity]
-    require(kyc[msg.sender].approved == True, "Your are not allowd to buy tokens");
+    require(kyc[msg.sender].approved == True, "Your are not allowed to buy tokens");
 \end{lstlisting}
 
 \begin{figure}[htpb]
